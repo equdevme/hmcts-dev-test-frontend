@@ -19,4 +19,3 @@ jobs:
       - run: corepack enable && yarn --version
       - run: yarn install --immutable
       - run: yarn cichecks
-      

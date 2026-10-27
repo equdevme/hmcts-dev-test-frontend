@@ -1,12 +1,12 @@
 import * as path from 'path';
 
-import { HTTPError } from './HttpError';
-import { Nunjucks } from './modules/nunjucks';
-
 import cookieParser from 'cookie-parser';
 import express from 'express';
 import { glob } from 'glob';
 import favicon from 'serve-favicon';
+
+import { HTTPError } from './HttpError';
+import { Nunjucks } from './modules/nunjucks';
 
 const { setupDev } = require('./development');
 
