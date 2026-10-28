@@ -1,0 +1,86 @@
+
+{% extends "template.njk" %}
+
+{% block pageTitle %}
+  {{ caseItem.title }} - HMCTS
+{% endblock %}
+
+{% block content %}
+  <a
+    href="/cases?caseworkerId={{ caseworker.id }}"
+    class="govuk-back-link"
+  >
+    Back to cases
+  </a>
+
+  <h1 class="govuk-heading-l">{{ caseItem.title }}</h1>
+
+  <p class="govuk-body">
+    Viewing as: <strong>{{ caseworker.name }}</strong>
+  </p>
+
+  <h2 class="govuk-heading-m">Case details</h2>
+
+  <dl class="govuk-summary-list">
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Case reference</dt>
+      <dd class="govuk-summary-list__value">{{ caseItem.id }}</dd>
+    </div>
+
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Owner</dt>
+      <dd class="govuk-summary-list__value">{{ ownerName }}</dd>
+    </div>
+
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Description</dt>
+      <dd class="govuk-summary-list__value">
+        {{ caseItem.description or "No description provided" }}
+      </dd>
+    </div>
+  </dl>
+
+  <h2 class="govuk-heading-m">Tasks</h2>
+
+  <p class="govuk-body">
+    <a
+      class="govuk-link"
+      href="/cases/{{ caseItem.id }}/tasks/new?caseworkerId={{ caseworker.id }}"
+    >
+      Create a task
+    </a>
+  </p>
+
+  {% if tasks.length %}
+    <table class="govuk-table">
+      <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+          <th scope="col" class="govuk-table__header">Title</th>
+          <th scope="col" class="govuk-table__header">Status</th>
+          <th scope="col" class="govuk-table__header">Due date</th>
+        </tr>
+      </thead>
+
+      <tbody class="govuk-table__body">
+        {% for task in tasks %}
+          <tr class="govuk-table__row">
+            <td class="govuk-table__cell">
+              <a
+                class="govuk-link"
+                href="/tasks/{{ task.id }}?caseworkerId={{ caseworker.id }}"
+              >
+                {{ task.title }}
+              </a>
+            </td>
+            <td class="govuk-table__cell">{{ task.status }}</td>
+            <td class="govuk-table__cell">
+                {{ task.formattedDueAt }}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="govuk-body">No tasks have been created for this case.</p>
+  {% endif %}
+{% endblock %}

@@ -2316,6 +2316,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/luxon@npm:^3.7.6":
+  version: 3.7.6
+  resolution: "@types/luxon@npm:3.7.6"
+  checksum: 10/2bc7a58b2cf231455085314821fe9b05a8e97cef2447d8da50be0a8794f0ddfa6d4bbd18eb6259ee881be0da0d08843ce66830a30d5926a25981f91bd5f588a9
+  languageName: node
+  linkType: hard
+
 "@types/methods@npm:^1.1.4":
   version: 1.1.4
   resolution: "@types/methods@npm:1.1.4"
@@ -6221,6 +6228,7 @@ __metadata:
     "@types/cookie-parser": "npm:^1.4.10"
     "@types/express": "npm:^5.0.6"
     "@types/jest": "npm:^30.0.0"
+    "@types/luxon": "npm:^3.7.6"
     "@types/node": "npm:^26.1.0"
     "@types/nunjucks": "npm:^3.2.6"
     "@types/serve-favicon": "npm:^2.5.7"
@@ -6246,6 +6254,7 @@ __metadata:
     jest: "npm:^30.4.2"
     jest-util: "npm:^30.4.1"
     lint-staged: "npm:^17.0.8"
+    luxon: "npm:^3.7.2"
     mini-css-extract-plugin: "npm:^2.10.2"
     nodemon: "npm:^3.1.14"
     nunjucks: "npm:^3.2.4"
@@ -7758,6 +7767,13 @@ __metadata:
   version: 7.18.3
   resolution: "lru-cache@npm:7.18.3"
   checksum: 10/6029ca5aba3aacb554e919d7ef804fffd4adfc4c83db00fac8248c7c78811fb6d4b6f70f7fd9d55032b3823446546a007edaa66ad1f2377ae833bd983fac5d98
+  languageName: node
+  linkType: hard
+
+"luxon@npm:^3.7.2":
+  version: 3.7.2
+  resolution: "luxon@npm:3.7.2"
+  checksum: 10/b24cd205ed306ce7415991687897dcc4027921ae413c9116590bc33a95f93b86ce52cf74ba72b4f5c5ab1c10090517f54ac8edfb127c049e0bf55b90dc2260be
   languageName: node
   linkType: hard
 

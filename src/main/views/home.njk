@@ -1,33 +1,34 @@
+
 {% extends "template.njk" %}
 
 {% block pageTitle %}
-  Tasks - HMCTS
+  Select a caseworker - HMCTS
 {% endblock %}
 
 {% block content %}
-  <h1 class="govuk-heading-l">Tasks</h1>
+  <h1 class="govuk-heading-l">Select a caseworker</h1>
 
-  {% if tasks.length %}
-    <table class="govuk-table">
-      <thead class="govuk-table__head">
-        <tr class="govuk-table__row">
-          <th scope="col" class="govuk-table__header">Title</th>
-          <th scope="col" class="govuk-table__header">Status</th>
-          <th scope="col" class="govuk-table__header">Due date</th>
-        </tr>
-      </thead>
+  <p class="govuk-body">
+    Choose a caseworker to explore the task management application.
+  </p>
 
-      <tbody class="govuk-table__body">
-        {% for task in tasks %}
-          <tr class="govuk-table__row">
-            <td class="govuk-table__cell">{{ task.title }}</td>
-            <td class="govuk-table__cell">{{ task.status }}</td>
-            <td class="govuk-table__cell">{{ task.dueAt or "Not set" }}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <div class="govuk-inset-text">
+    <strong>Demonstration mode:</strong>
+    Selecting a caseworker simulates signing in as that user.
+    Authentication and access controls are not implemented.
+  </div>
+
+  {% if caseworkers.length %}
+    <ul class="govuk-list">
+      {% for caseworker in caseworkers %}
+        <li>
+          <a class="govuk-link" href="/cases?caseworkerId={{ caseworker.id }}">
+            {{ caseworker.name }}
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
   {% else %}
-    <p class="govuk-body">No tasks found.</p>
+    <p class="govuk-body">No caseworkers available.</p>
   {% endif %}
 {% endblock %}
