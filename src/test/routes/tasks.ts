@@ -1,0 +1,175 @@
+import axios from 'axios';
+import request from 'supertest';
+
+import { app } from '../../main/app';
+
+jest.mock('axios');
+
+const mockedAxios = jest.mocked(axios);
+
+describe('Task routes', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('should display the new task form for a case', async () => {
+    mockedAxios.get.mockImplementation(async url => {
+      if (url === 'http://localhost:4000/cases/10') {
+        return {
+          data: {
+            id: 10,
+            ownerId: 1,
+            title: 'Test case',
+            description: 'A case for testing',
+          },
+        };
+      }
+
+      if (url === 'http://localhost:4000/caseworkers') {
+        return {
+          data: [
+            { id: 1, name: 'Danger Mouse' },
+            { id: 2, name: 'Count Duckula' },
+          ],
+        };
+      }
+
+      throw new Error(`Unexpected API request: ${url}`);
+    });
+
+    const response = await request(app).get('/cases/10/tasks/new?caseworkerId=1').expect(200);
+
+    expect(response.text).toContain('Test case');
+    expect(response.text).toContain('Create task');
+
+    expect(mockedAxios.get).toHaveBeenCalledWith('http://localhost:4000/cases/10');
+  });
+
+  test('should create a task and redirect to the case details page', async () => {
+    mockedAxios.get.mockImplementation(async url => {
+      if (url === 'http://localhost:4000/cases/10') {
+        return {
+          data: {
+            id: 10,
+            ownerId: 1,
+            title: 'Test case',
+            description: 'A case for testing',
+          },
+        };
+      }
+
+      if (url === 'http://localhost:4000/caseworkers') {
+        return {
+          data: [{ id: 1, name: 'Danger Mouse' }],
+        };
+      }
+
+      throw new Error(`Unexpected API request: ${url}`);
+    });
+
+    mockedAxios.post.mockResolvedValue({
+      data: { id: 20 },
+    });
+
+    const response = await request(app)
+      .post('/cases/10/tasks?caseworkerId=1')
+      .type('form')
+      .send({
+        title: 'Review documents',
+        description: 'Check submitted evidence',
+        dueDay: '15',
+        dueMonth: '12',
+        dueYear: '2026',
+        dueTime: '14:30',
+      })
+      .expect(302);
+
+    expect(response.headers.location).toBe('/cases/10?caseworkerId=1');
+
+    expect(mockedAxios.post).toHaveBeenCalledWith('http://localhost:4000/tasks', {
+      caseId: 10,
+      createdBy: 1,
+      title: 'Review documents',
+      description: 'Check submitted evidence',
+      dueAt: '2026-12-15T14:30:00.000Z',
+    });
+  });
+
+  test('should reject task creation when the title is missing', async () => {
+    mockedAxios.get.mockImplementation(async url => {
+      if (url === 'http://localhost:4000/cases/10') {
+        return {
+          data: {
+            id: 10,
+            ownerId: 1,
+            title: 'Test case',
+            description: 'A case for testing',
+          },
+        };
+      }
+
+      if (url === 'http://localhost:4000/caseworkers') {
+        return {
+          data: [{ id: 1, name: 'Danger Mouse' }],
+        };
+      }
+
+      throw new Error(`Unexpected API request: ${url}`);
+    });
+
+    const response = await request(app)
+      .post('/cases/10/tasks?caseworkerId=1')
+      .type('form')
+      .send({
+        title: '',
+        description: 'Check submitted evidence',
+        dueDay: '15',
+        dueMonth: '12',
+        dueYear: '2026',
+        dueTime: '14:30',
+      })
+      .expect(400);
+
+    expect(response.text).toContain('Enter a task title');
+    expect(mockedAxios.post).not.toHaveBeenCalled();
+  });
+
+  test('should reject an invalid due date', async () => {
+    mockedAxios.get.mockImplementation(async url => {
+      if (url === 'http://localhost:4000/cases/10') {
+        return {
+          data: {
+            id: 10,
+            ownerId: 1,
+            title: 'Test case',
+            description: 'A case for testing',
+          },
+        };
+      }
+
+      if (url === 'http://localhost:4000/caseworkers') {
+        return {
+          data: [{ id: 1, name: 'Danger Mouse' }],
+        };
+      }
+
+      throw new Error(`Unexpected API request: ${url}`);
+    });
+
+    const response = await request(app)
+      .post('/cases/10/tasks?caseworkerId=1')
+      .type('form')
+      .send({
+        title: 'Review documents',
+        description: 'Check submitted evidence',
+        dueDay: '31',
+        dueMonth: '11',
+        dueYear: '2026',
+        dueTime: '14:30',
+      })
+      .expect(400);
+
+    expect(response.text).toContain('Enter a valid due date');
+    expect(mockedAxios.post).not.toHaveBeenCalled();
+  });
+});
