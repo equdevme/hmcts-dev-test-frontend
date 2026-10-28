@@ -172,4 +172,45 @@ describe('Task routes', () => {
     expect(response.text).toContain('Enter a valid due date');
     expect(mockedAxios.post).not.toHaveBeenCalled();
   });
+
+  test('should display task details with the creator name', async () => {
+    mockedAxios.get.mockImplementation(async url => {
+      if (url === 'http://localhost:4000/tasks/9') {
+        return {
+          data: {
+            id: 9,
+            caseId: 10,
+            createdBy: 2,
+            title: 'Review Supporting Evidence',
+            description: 'Check the submitted documents',
+            status: 'TODO',
+            dueAt: '2026-11-05T14:30:00Z',
+          },
+        };
+      }
+
+      if (url === 'http://localhost:4000/caseworkers') {
+        return {
+          data: [
+            { id: 1, name: 'Danger Mouse' },
+            { id: 2, name: 'Count Duckula' },
+          ],
+        };
+      }
+
+      throw new Error(`Unexpected API request: ${url}`);
+    });
+
+    const response = await request(app).get('/tasks/9?caseworkerId=1').expect(200);
+
+    expect(response.text).toContain('Review Supporting Evidence');
+    expect(response.text).toContain('Check the submitted documents');
+    expect(response.text).toContain('TODO');
+    expect(response.text).toContain('5 November 2026, 14:30');
+    expect(response.text).toContain('Count Duckula');
+
+    expect(response.text).toContain('/cases/10?caseworkerId=1');
+
+    expect(mockedAxios.get).toHaveBeenCalledWith('http://localhost:4000/tasks/9');
+  });
 });

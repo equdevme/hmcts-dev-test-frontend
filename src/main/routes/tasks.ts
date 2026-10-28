@@ -158,4 +158,45 @@ export default function (app: Application): void {
       next(error);
     }
   });
+
+  app.get('/tasks/:id', async (req, res, next) => {
+    try {
+      const taskId = Number(req.params.id);
+      const caseworkerId = Number(req.query.caseworkerId);
+
+      if (!Number.isSafeInteger(taskId) || taskId <= 0 || !Number.isSafeInteger(caseworkerId) || caseworkerId <= 0) {
+        return res.redirect('/');
+      }
+
+      const [taskResponse, caseworkersResponse] = await Promise.all([
+        axios.get(`http://localhost:4000/tasks/${taskId}`),
+        axios.get('http://localhost:4000/caseworkers'),
+      ]);
+
+      const caseworker = caseworkersResponse.data.find((cw: { id: number; name: string }) => cw.id === caseworkerId);
+
+      if (!caseworker) {
+        return res.redirect('/');
+      }
+
+      const task = {
+        ...taskResponse.data,
+        formattedDueAt: taskResponse.data.dueAt
+          ? DateTime.fromISO(taskResponse.data.dueAt, { zone: 'utc' })
+              .setZone('Europe/London')
+              .toFormat('d LLLL yyyy, HH:mm')
+          : 'Not set',
+      };
+
+      const creator = caseworkersResponse.data.find((cw: { id: number; name: string }) => cw.id === task.createdBy);
+
+      res.render('task-details', {
+        task,
+        caseworker,
+        creatorName: creator?.name ?? 'Unknown',
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
 }

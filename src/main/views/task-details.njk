@@ -1,0 +1,55 @@
+{% extends "template.njk" %}
+
+{% block pageTitle %}
+  {{ task.title }} - HMCTS
+{% endblock %}
+
+{% block content %}
+  <a
+    href="/cases/{{ task.caseId }}?caseworkerId={{ caseworker.id }}"
+    class="govuk-back-link"
+  >
+    Back to case
+  </a>
+
+  <h1 class="govuk-heading-l">{{ task.title }}</h1>
+
+  <p class="govuk-body">
+    Viewing as: <strong>{{ caseworker.name }}</strong>
+  </p>
+
+  <h2 class="govuk-heading-m">Task details</h2>
+
+  <dl class="govuk-summary-list">
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Task reference</dt>
+      <dd class="govuk-summary-list__value">{{ task.id }}</dd>
+    </div>
+
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Description</dt>
+      <dd class="govuk-summary-list__value">
+        {{ task.description or "No description provided" }}
+      </dd>
+    </div>
+
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Status</dt>
+      <dd class="govuk-summary-list__value">{{ task.status }}</dd>
+    </div>
+
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Due date</dt>
+      <dd class="govuk-summary-list__value">
+        {{ task.formattedDueAt }}
+      </dd>
+    </div>
+
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Created by</dt>
+      <dd class="govuk-summary-list__value">
+        {{ creatorName }}
+      </dd>
+    </div>
+  </dl>
+{% endblock %}
