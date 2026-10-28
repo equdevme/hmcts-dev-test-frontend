@@ -35,8 +35,9 @@ glob
 
 setupDev(app, developmentMode);
 
-// error handler
-app.use((err: HTTPError, req: express.Request, res: express.Response, next: express.NextFunction) => {
+// Express requires four parameters to identify error-handling middleware.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+app.use((err: HTTPError, req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.log(err);
   // set locals, only providing error in development
   res.locals.message = err.message;

@@ -8,22 +8,30 @@ jest.mock('axios');
 const mockedAxios = jest.mocked(axios);
 
 describe('Home page', () => {
-  test('should display tasks returned by the API', async () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('should display caseworkers returned by the API', async () => {
     mockedAxios.get.mockResolvedValue({
       data: [
-        {
-          id: 1,
-          title: 'Review case documents',
-          status: 'TODO',
-          dueAt: '2026-11-05T12:00:00',
-        },
+        { id: 1, name: 'Danger Mouse' },
+        { id: 2, name: 'Count Duckula' },
+        { id: 3, name: 'Super Ted' },
       ],
     });
 
     const response = await request(app).get('/').expect(200);
 
-    expect(response.text).toContain('Review case documents');
-    expect(response.text).toContain('TODO');
-    expect(mockedAxios.get).toHaveBeenCalledWith('http://localhost:4000/tasks');
+    expect(response.text).toContain('Select a caseworker');
+    expect(response.text).toContain('Danger Mouse');
+    expect(response.text).toContain('Count Duckula');
+    expect(response.text).toContain('Super Ted');
+
+    expect(response.text).toContain('/cases?caseworkerId=1');
+    expect(response.text).toContain('/cases?caseworkerId=2');
+    expect(response.text).toContain('/cases?caseworkerId=3');
+
+    expect(mockedAxios.get).toHaveBeenCalledWith('http://localhost:4000/caseworkers');
   });
 });

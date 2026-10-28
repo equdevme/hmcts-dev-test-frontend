@@ -32,7 +32,7 @@ export default function (app: Application): void {
       ]);
 
       const selectedCaseworker = caseworkersResponse.data.find(
-        (caseworker: { id: number; name: string }) => caseworker.id === caseworkerId,
+        (caseworker: { id: number; name: string }) => caseworker.id === caseworkerId
       );
 
       if (!selectedCaseworker) {
@@ -41,9 +41,10 @@ export default function (app: Application): void {
 
       const cases = casesResponse.data.map((caseItem: { ownerId: number }) => ({
         ...caseItem,
-        ownerName: caseworkersResponse.data.find(
-          (caseworker: { id: number; name: string }) => caseworker.id === caseItem.ownerId,
-        )?.name ?? 'Unknown',
+        ownerName:
+          caseworkersResponse.data.find(
+            (caseworker: { id: number; name: string }) => caseworker.id === caseItem.ownerId
+          )?.name ?? 'Unknown',
       }));
 
       res.render('cases', {
@@ -74,7 +75,7 @@ export default function (app: Application): void {
       const caseworkers = caseworkersResponse.data;
 
       const selectedCaseworker = caseworkers.find(
-        (caseworker: { id: number; name: string }) => caseworker.id === caseworkerId,
+        (caseworker: { id: number; name: string }) => caseworker.id === caseworkerId
       );
 
       if (!selectedCaseworker) {
@@ -82,15 +83,13 @@ export default function (app: Application): void {
       }
 
       const owner = caseworkers.find(
-        (caseworker: { id: number; name: string }) => caseworker.id === caseResponse.data.ownerId,
+        (caseworker: { id: number; name: string }) => caseworker.id === caseResponse.data.ownerId
       );
 
       const tasks = tasksResponse.data.map((task: { dueAt: string | null }) => ({
         ...task,
         formattedDueAt: task.dueAt
-          ? DateTime.fromISO(task.dueAt, { zone: 'utc' })
-              .setZone('Europe/London')
-              .toFormat('d LLLL yyyy, HH:mm')
+          ? DateTime.fromISO(task.dueAt, { zone: 'utc' }).setZone('Europe/London').toFormat('d LLLL yyyy, HH:mm')
           : 'Not set',
       }));
 
@@ -100,7 +99,6 @@ export default function (app: Application): void {
         caseworker: selectedCaseworker,
         ownerName: owner?.name ?? 'Unknown',
       });
-
     } catch (error) {
       next(error);
     }
@@ -121,7 +119,7 @@ export default function (app: Application): void {
       ]);
 
       const selectedCaseworker = caseworkersResponse.data.find(
-        (caseworker: { id: number; name: string }) => caseworker.id === caseworkerId,
+        (caseworker: { id: number; name: string }) => caseworker.id === caseworkerId
       );
 
       if (!selectedCaseworker) {
@@ -142,8 +140,7 @@ export default function (app: Application): void {
       const caseId = Number(req.params.id);
       const caseworkerId = Number(req.query.caseworkerId);
 
-      if (!Number.isSafeInteger(caseId) || caseId <= 0 ||
-          !Number.isSafeInteger(caseworkerId) || caseworkerId <= 0) {
+      if (!Number.isSafeInteger(caseId) || caseId <= 0 || !Number.isSafeInteger(caseworkerId) || caseworkerId <= 0) {
         return res.redirect('/');
       }
 
@@ -153,7 +150,7 @@ export default function (app: Application): void {
       ]);
 
       const selectedCaseworker = caseworkersResponse.data.find(
-        (caseworker: { id: number; name: string }) => caseworker.id === caseworkerId,
+        (caseworker: { id: number; name: string }) => caseworker.id === caseworkerId
       );
 
       if (!selectedCaseworker) {
@@ -173,13 +170,15 @@ export default function (app: Application): void {
       const year = Number(dueYear);
 
       const validDateParts = [dueDay, dueMonth, dueYear].every(
-        value => typeof value === 'string' && /^\d+$/.test(value),
+        value => typeof value === 'string' && /^\d+$/.test(value)
       );
 
       const date = new Date(Date.UTC(year, month - 1, day));
 
-      const validDate = validDateParts &&
-        year >= 1000 && year <= 9999 &&
+      const validDate =
+        validDateParts &&
+        year >= 1000 &&
+        year <= 9999 &&
         date.getUTCFullYear() === year &&
         date.getUTCMonth() === month - 1 &&
         date.getUTCDate() === day;
@@ -188,8 +187,7 @@ export default function (app: Application): void {
         errors.push({ field: 'due-date', message: 'Enter a valid due date' });
       }
 
-      const validTime = typeof dueTime === 'string' &&
-        /^([01]\d|2[0-3]):[0-5]\d$/.test(dueTime);
+      const validTime = typeof dueTime === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(dueTime);
 
       if (!validTime) {
         errors.push({ field: 'due-time', message: 'Enter a valid time in 24-hour format' });
@@ -200,10 +198,7 @@ export default function (app: Application): void {
       if (validDate && validTime) {
         const [hour, minute] = dueTime.split(':').map(Number);
 
-        localDateTime = DateTime.fromObject(
-          { year, month, day, hour, minute },
-          { zone: 'Europe/London' },
-        );
+        localDateTime = DateTime.fromObject({ year, month, day, hour, minute }, { zone: 'Europe/London' });
 
         // Detect nonexistent local times when clocks go forward.
         const matchesInput =
@@ -264,5 +259,4 @@ export default function (app: Application): void {
       next(error);
     }
   });
-
 }
