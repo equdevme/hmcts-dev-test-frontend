@@ -199,4 +199,28 @@ export default function (app: Application): void {
       next(error);
     }
   });
+
+  app.post('/tasks/:id/status', async (req, res, next) => {
+    try {
+      const taskId = Number(req.params.id);
+      const caseworkerId = Number(req.query.caseworkerId);
+      const { status } = req.body;
+
+      if (!Number.isSafeInteger(taskId) || taskId <= 0 || !Number.isSafeInteger(caseworkerId) || caseworkerId <= 0) {
+        return res.redirect('/');
+      }
+
+      if (typeof status !== 'string' || !['TODO', 'IN_PROGRESS', 'DONE'].includes(status)) {
+        return res.status(400).send('Invalid task status');
+      }
+
+      await axios.patch(`http://localhost:4000/tasks/${taskId}`, {
+        status,
+      });
+
+      return res.redirect(`/tasks/${taskId}?caseworkerId=${caseworkerId}`);
+    } catch (error) {
+      return next(error);
+    }
+  });
 }

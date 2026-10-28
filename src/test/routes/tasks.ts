@@ -213,4 +213,31 @@ describe('Task routes', () => {
 
     expect(mockedAxios.get).toHaveBeenCalledWith('http://localhost:4000/tasks/9');
   });
+
+  test('should update a task status and redirect to task details', async () => {
+    mockedAxios.patch.mockResolvedValue({
+      data: { id: 9, status: 'IN_PROGRESS' },
+    });
+
+    const response = await request(app)
+      .post('/tasks/9/status?caseworkerId=1')
+      .type('form')
+      .send({ status: 'IN_PROGRESS' })
+      .expect(302);
+
+    expect(mockedAxios.patch).toHaveBeenCalledWith('http://localhost:4000/tasks/9', { status: 'IN_PROGRESS' });
+
+    expect(response.headers.location).toBe('/tasks/9?caseworkerId=1');
+  });
+
+  test('should reject an invalid task status', async () => {
+    const response = await request(app)
+      .post('/tasks/9/status?caseworkerId=1')
+      .type('form')
+      .send({ status: 'INVALID' })
+      .expect(400);
+
+    expect(response.text).toContain('Invalid task status');
+    expect(mockedAxios.patch).not.toHaveBeenCalled();
+  });
 });

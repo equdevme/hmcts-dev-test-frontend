@@ -67,6 +67,21 @@ The task creation form includes:
 - Optional description.
 - Required due date and time.
 
+### Task Details and Status Updates
+
+Caseworkers can view individual task details, including:
+
+- Task reference, title and description.
+- Due date and time displayed in UK local time.
+- Task creator's name.
+- Current task status.
+
+Caseworkers can update a task's status to **To do**, **In progress** or **Done**.
+
+The status is displayed as read-only text by default. Selecting **Change** reveals a status dropdown with **Apply** and **Cancel** controls.
+
+Status changes are submitted through an Express route, which validates the requested status and forwards the update to the backend using `PATCH /tasks/{id}`.
+
 ### Validation
 
 The frontend validates task creation requests before submitting them to the backend, including:
@@ -75,6 +90,7 @@ The frontend validates task creation requests before submitting them to the back
 - Valid calendar date and 24-hour time.
 - Due date and time must be in the future.
 - Rejection of nonexistent or ambiguous local times during UK daylight-saving transitions.
+- Task status updates are restricted to the supported values (TODO, IN_PROGRESS, DONE).
 
 Validation errors are displayed using GOV.UK error summaries and field-level error messages, with previously entered values preserved.
 
@@ -100,15 +116,15 @@ The frontend communicates with the backend through Express routes rather than ma
 
 - Caseworker selection simulates a logged-in user and does not provide authentication.
 - The selected caseworker is passed between pages using URL query parameters.
-- Caseworkers can currently view and create tasks in any case, regardless of ownership.
+- Caseworkers can currently view cases and tasks, create tasks and update task statuses regardless of case ownership. These actions are not restricted by authentication or authorisation.
 - Future due-date validation is currently enforced by the frontend only. The backend should also enforce this rule to ensure consistency across API clients.
 - The application uses the `Europe/London` timezone for task due dates.
 
 ## Further Development
 
-- Task details, status updates and deletion through the frontend.
+- Task deletion through the frontend.
 - Backend enforcement of future due-date restrictions.
 - Additional task management business rules, including status transition restrictions.
 - Improved error handling for backend API failures.
-- Automated frontend tests.
+- Expanded automated frontend tests, including additional validation and error scenarios.
 - Potential task proposal and approval workflow, allowing case owners to accept or reject tasks proposed by colleagues.

@@ -1,1 +1,20 @@
 @use 'govuk-frontend' as *;
+
+[hidden] {
+  display: none !important;
+}
+
+.task-status-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.task-status-cancel {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+}
