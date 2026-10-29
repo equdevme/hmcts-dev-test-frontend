@@ -210,13 +210,23 @@ export default function (app: Application): void {
         return res.redirect('/');
       }
 
-      if (typeof status !== 'string' || !['TODO', 'IN_PROGRESS', 'DONE'].includes(status)) {
+      const statusesResponse = await axios.get('http://localhost:4000/task-statuses');
+
+      const validStatuses = statusesResponse.data.map((taskStatus: { code: string }) => taskStatus.code);
+
+      if (typeof status !== 'string' || !validStatuses.includes(status)) {
         return res.status(400).send('Invalid task status');
       }
+
+      const taskResponse = await axios.get(`http://localhost:4000/tasks/${taskId}`);
 
       await axios.patch(`http://localhost:4000/tasks/${taskId}`, {
         status,
       });
+
+      if (req.query.returnTo === 'case') {
+        return res.redirect(`/cases/${taskResponse.data.caseId}?caseworkerId=${caseworkerId}`);
+      }
 
       return res.redirect(`/tasks/${taskId}?caseworkerId=${caseworkerId}`);
     } catch (error) {

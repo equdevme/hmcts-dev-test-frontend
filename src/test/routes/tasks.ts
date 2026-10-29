@@ -215,6 +215,14 @@ describe('Task routes', () => {
   });
 
   test('should update a task status and redirect to task details', async () => {
+    mockedAxios.get.mockResolvedValue({
+      data: [
+        { code: 'TODO', label: 'To do' },
+        { code: 'IN_PROGRESS', label: 'In progress' },
+        { code: 'DONE', label: 'Done' },
+      ],
+    });
+
     mockedAxios.patch.mockResolvedValue({
       data: { id: 9, status: 'IN_PROGRESS' },
     });
@@ -231,6 +239,14 @@ describe('Task routes', () => {
   });
 
   test('should reject an invalid task status', async () => {
+    mockedAxios.get.mockResolvedValue({
+      data: [
+        { code: 'TODO', label: 'To do' },
+        { code: 'IN_PROGRESS', label: 'In progress' },
+        { code: 'DONE', label: 'Done' },
+      ],
+    });
+
     const response = await request(app)
       .post('/tasks/9/status?caseworkerId=1')
       .type('form')
