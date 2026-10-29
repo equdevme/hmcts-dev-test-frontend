@@ -223,4 +223,63 @@ export default function (app: Application): void {
       return next(error);
     }
   });
+
+  app.get('/tasks/:id/delete', async (req, res, next) => {
+    try {
+      const taskId = Number(req.params.id);
+      const caseworkerId = Number(req.query.caseworkerId);
+
+      if (!Number.isSafeInteger(taskId) || taskId <= 0 || !Number.isSafeInteger(caseworkerId) || caseworkerId <= 0) {
+        return res.redirect('/');
+      }
+
+      const [taskResponse, caseworkersResponse] = await Promise.all([
+        axios.get(`http://localhost:4000/tasks/${taskId}`),
+        axios.get('http://localhost:4000/caseworkers'),
+      ]);
+
+      const caseworker = caseworkersResponse.data.find((cw: { id: number; name: string }) => cw.id === caseworkerId);
+
+      if (!caseworker) {
+        return res.redirect('/');
+      }
+
+      const returnTo = req.query.returnTo === 'case' ? 'case' : 'task';
+
+      const cancelUrl =
+        returnTo === 'case'
+          ? `/cases/${taskResponse.data.caseId}?caseworkerId=${caseworkerId}`
+          : `/tasks/${taskId}?caseworkerId=${caseworkerId}`;
+
+      return res.render('task-delete', {
+        task: taskResponse.data,
+        caseworker,
+        cancelUrl,
+        returnTo,
+      });
+    } catch (error) {
+      return next(error);
+    }
+  });
+
+  app.post('/tasks/:id/delete', async (req, res, next) => {
+    try {
+      const taskId = Number(req.params.id);
+      const caseworkerId = Number(req.query.caseworkerId);
+
+      if (!Number.isSafeInteger(taskId) || taskId <= 0 || !Number.isSafeInteger(caseworkerId) || caseworkerId <= 0) {
+        return res.redirect('/');
+      }
+
+      const taskResponse = await axios.get(`http://localhost:4000/tasks/${taskId}`);
+
+      const caseId = taskResponse.data.caseId;
+
+      await axios.delete(`http://localhost:4000/tasks/${taskId}`);
+
+      return res.redirect(`/cases/${caseId}?caseworkerId=${caseworkerId}`);
+    } catch (error) {
+      return next(error);
+    }
+  });
 }

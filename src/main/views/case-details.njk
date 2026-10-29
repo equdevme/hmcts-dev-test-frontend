@@ -58,6 +58,7 @@
           <th scope="col" class="govuk-table__header">Title</th>
           <th scope="col" class="govuk-table__header">Status</th>
           <th scope="col" class="govuk-table__header">Due date</th>
+          <th scope="col" class="govuk-table__header">Actions</th>
         </tr>
       </thead>
 
@@ -85,6 +86,17 @@
             </td>
             <td class="govuk-table__cell">
                 {{ task.formattedDueAt }}
+            </td>
+            <td class="govuk-table__cell">
+              <a
+                href="/tasks/{{ task.id }}/delete?caseworkerId={{ caseworker.id }}&returnTo=case"
+                class="govuk-link"
+              >
+                Delete
+                <span class="govuk-visually-hidden">
+                  {{ task.title }}
+                </span>
+              </a>
             </td>
           </tr>
         {% endfor %}

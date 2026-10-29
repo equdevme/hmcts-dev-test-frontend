@@ -82,6 +82,20 @@ The status is displayed as read-only text by default. Selecting **Change** revea
 
 Status changes are submitted through an Express route, which validates the requested status and forwards the update to the backend using `PATCH /tasks/{id}`.
 
+### Task Deletion
+
+Caseworkers can delete tasks from either the case details page or the individual task details page.
+
+Both actions lead to a confirmation page displaying the task title and warning that deletion cannot be undone.
+
+The confirmation page provides:
+
+- **Delete task:** Confirms deletion through an Express route, which calls the backend `DELETE /tasks/{id}` endpoint.
+- **Cancel:** Returns to the page from which deletion was initiated without making changes.
+- **Back:** Provides the same context-aware navigation as Cancel.
+
+After successful deletion, the caseworker is redirected to the associated case details page.
+
 ### Validation
 
 The frontend validates task creation requests before submitting them to the backend, including:
@@ -92,7 +106,7 @@ The frontend validates task creation requests before submitting them to the back
 - Rejection of nonexistent or ambiguous local times during UK daylight-saving transitions.
 - Task status updates are restricted to the supported values (TODO, IN_PROGRESS, DONE).
 
-Validation errors are displayed using GOV.UK error summaries and field-level error messages, with previously entered values preserved.
+Task creation validation errors are displayed using GOV.UK error summaries and field-level error messages, with previously entered values preserved.
 
 ### Date and Time Handling
 
@@ -112,17 +126,30 @@ UTC timestamps returned by the backend are converted back to UK local time for d
 
 The frontend communicates with the backend through Express routes rather than making API requests directly from the browser.
 
+### Design Principles
+
+The interface prioritises established GOV.UK Design System components and patterns, simplicity and accessibility.
+
+The implementation favours:
+
+- Clear, predictable navigation and interactions.
+- Accessible, descriptive links and form controls.
+- Server-rendered HTML and standard form submissions where practical.
+- Progressive enhancement, using JavaScript only where it improves the interaction.
+- Explicit confirmation before destructive actions.
+
+These principles aim to keep the application understandable, maintainable and usable without introducing unnecessary frontend complexity.
+
 ## Assumptions and Limitations
 
 - Caseworker selection simulates a logged-in user and does not provide authentication.
 - The selected caseworker is passed between pages using URL query parameters.
-- Caseworkers can currently view cases and tasks, create tasks and update task statuses regardless of case ownership. These actions are not restricted by authentication or authorisation.
+- Caseworkers can currently view cases and tasks, create and delete tasks, and update task statuses regardless of case ownership. These actions are not restricted by authentication or authorisation.
 - Future due-date validation is currently enforced by the frontend only. The backend should also enforce this rule to ensure consistency across API clients.
 - The application uses the `Europe/London` timezone for task due dates.
 
 ## Further Development
 
-- Task deletion through the frontend.
 - Backend enforcement of future due-date restrictions.
 - Additional task management business rules, including status transition restrictions.
 - Improved error handling for backend API failures.

@@ -240,4 +240,64 @@ describe('Task routes', () => {
     expect(response.text).toContain('Invalid task status');
     expect(mockedAxios.patch).not.toHaveBeenCalled();
   });
+
+  test('should delete a task and redirect to its case', async () => {
+    mockedAxios.get.mockResolvedValue({
+      data: {
+        id: 9,
+        caseId: 10,
+        title: 'Review supporting evidence',
+      },
+    });
+
+    mockedAxios.delete.mockResolvedValue({
+      status: 204,
+    });
+
+    const response = await request(app).post('/tasks/9/delete?caseworkerId=1').expect(302);
+
+    expect(mockedAxios.get).toHaveBeenCalledWith('http://localhost:4000/tasks/9');
+
+    expect(mockedAxios.delete).toHaveBeenCalledWith('http://localhost:4000/tasks/9');
+
+    expect(response.headers.location).toBe('/cases/10?caseworkerId=1');
+  });
+
+  test('should reject task deletion with an invalid task ID', async () => {
+    const response = await request(app).post('/tasks/invalid/delete?caseworkerId=1').expect(302);
+
+    expect(response.headers.location).toBe('/');
+
+    expect(mockedAxios.get).not.toHaveBeenCalled();
+    expect(mockedAxios.delete).not.toHaveBeenCalled();
+  });
+
+  test('should display the task deletion confirmation page', async () => {
+    mockedAxios.get.mockImplementation(async url => {
+      if (url === 'http://localhost:4000/tasks/9') {
+        return {
+          data: {
+            id: 9,
+            caseId: 10,
+            title: 'Review supporting evidence',
+          },
+        };
+      }
+
+      if (url === 'http://localhost:4000/caseworkers') {
+        return {
+          data: [{ id: 1, name: 'Danger Mouse' }],
+        };
+      }
+
+      throw new Error(`Unexpected API request: ${url}`);
+    });
+
+    const response = await request(app).get('/tasks/9/delete?caseworkerId=1&returnTo=case').expect(200);
+
+    expect(response.text).toContain('Review supporting evidence');
+    expect(response.text).toContain('This action cannot be undone');
+    expect(response.text).toContain('/cases/10?caseworkerId=1');
+    expect(response.text).toContain('Delete task');
+  });
 });
