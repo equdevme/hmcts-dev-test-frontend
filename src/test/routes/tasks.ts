@@ -316,4 +316,116 @@ describe('Task routes', () => {
     expect(response.text).toContain('/cases/10?caseworkerId=1');
     expect(response.text).toContain('Delete task');
   });
+
+  describe('task due-date edge cases', () => {
+    beforeEach(() => {
+      mockedAxios.get.mockImplementation(async url => {
+        if (url === 'http://localhost:4000/cases/10') {
+          return {
+            data: {
+              id: 10,
+              ownerId: 1,
+              title: 'Test case',
+              description: 'A case for testing',
+            },
+          };
+        }
+
+        if (url === 'http://localhost:4000/caseworkers') {
+          return {
+            data: [{ id: 1, name: 'Danger Mouse' }],
+          };
+        }
+
+        throw new Error(`Unexpected API request: ${url}`);
+      });
+    });
+
+    test.each([
+      {
+        scenario: 'a due date in the past',
+        dueDay: '15',
+        dueMonth: '12',
+        dueYear: '2020',
+        dueTime: '14:30',
+        message: 'Due date and time must be in the future',
+      },
+      {
+        scenario: 'a nonexistent time when UK clocks move forward',
+        dueDay: '28',
+        dueMonth: '3',
+        dueYear: '2027',
+        dueTime: '01:30',
+        message: 'This time does not exist because the clocks change',
+      },
+      {
+        scenario: 'an ambiguous time when UK clocks move back',
+        dueDay: '31',
+        dueMonth: '10',
+        dueYear: '2027',
+        dueTime: '01:30',
+        message: 'This time occurs twice because the clocks change',
+      },
+    ])('should reject $scenario', async ({ dueDay, dueMonth, dueYear, dueTime, message }) => {
+      const response = await request(app)
+        .post('/cases/10/tasks?caseworkerId=1')
+        .type('form')
+        .send({
+          title: 'Review documents',
+          description: 'Check submitted evidence',
+          dueDay,
+          dueMonth,
+          dueYear,
+          dueTime,
+        })
+        .expect(400);
+
+      expect(response.text).toContain(message);
+      expect(mockedAxios.post).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('backend API failures', () => {
+    test('should not redirect as successful when task creation fails', async () => {
+      mockedAxios.get.mockImplementation(async url => {
+        if (url === 'http://localhost:4000/cases/10') {
+          return {
+            data: {
+              id: 10,
+              ownerId: 1,
+              title: 'Test case',
+              description: 'A case for testing',
+            },
+          };
+        }
+
+        if (url === 'http://localhost:4000/caseworkers') {
+          return {
+            data: [{ id: 1, name: 'Danger Mouse' }],
+          };
+        }
+
+        throw new Error(`Unexpected API request: ${url}`);
+      });
+
+      mockedAxios.post.mockRejectedValue(new Error('Backend task creation failed'));
+
+      const response = await request(app)
+        .post('/cases/10/tasks?caseworkerId=1')
+        .type('form')
+        .send({
+          title: 'Review documents',
+          description: 'Check submitted evidence',
+          dueDay: '15',
+          dueMonth: '12',
+          dueYear: '2026',
+          dueTime: '14:30',
+        })
+        .expect(500);
+
+      expect(mockedAxios.post).toHaveBeenCalledTimes(1);
+      expect(response.headers.location).toBeUndefined();
+      expect(response.text).toContain('Something went wrong');
+    });
+  });
 });

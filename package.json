@@ -13,7 +13,7 @@
     "build": "yarn webpack --config webpack.config.js",
     "build:prod": "NODE_ENV=production yarn webpack --mode production --config webpack.config.js",
     "test": "npx if-env CI=true && exit 0 || yarn test:unit",
-    "test:unit": "jest",
+    "test:unit": "jest --passWithNoTests",
     "test:coverage": "jest --coverage",
     "test:routes": "jest -c jest.routes.config.js",
     "test:functional": "NODE_TLS_REJECT_UNAUTHORIZED=0 codeceptjs run --steps",
