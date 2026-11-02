@@ -52,8 +52,11 @@
 
         <dd class="govuk-summary-list__value">
             <span id="current-task-status">
-              {% set currentStatus = taskStatuses | selectattr("code", "equalto", task.status) | first %}
-              {{ currentStatus.label if currentStatus else task.status }}
+              {% for status in taskStatuses %}
+                {% if status.code == task.status %}
+                  {{ status.label }}
+                {% endif %}
+              {% endfor %}
             </span>
 
             <form
