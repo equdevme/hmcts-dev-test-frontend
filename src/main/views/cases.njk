@@ -1,0 +1,64 @@
+{% extends "template.njk" %}
+
+{% block pageTitle %}
+  Cases - HMCTS
+{% endblock %}
+
+{% block content %}
+  <a href="/" class="govuk-back-link">Change caseworker</a>
+
+  <h1 class="govuk-heading-l">Cases</h1>
+
+  <p class="govuk-body">
+    Viewing as: <strong>{{ caseworker.name }}</strong>
+  </p>
+
+  <nav aria-label="Case filters" class="govuk-!-margin-bottom-6">
+    <a
+      class="govuk-link govuk-!-margin-right-4"
+      href="/cases?caseworkerId={{ caseworker.id }}&view=all"
+      {% if view == 'all' %}aria-current="page"{% endif %}
+    >
+      All cases
+    </a>
+
+    <a
+      class="govuk-link"
+      href="/cases?caseworkerId={{ caseworker.id }}&view=mine"
+      {% if view == 'mine' %}aria-current="page"{% endif %}
+    >
+      My cases
+    </a>
+  </nav>
+
+  {% if cases.length %}
+    <table class="govuk-table">
+      <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+          <th scope="col" class="govuk-table__header">Case ID</th>
+          <th scope="col" class="govuk-table__header">Title</th>
+          <th scope="col" class="govuk-table__header">Owner</th>
+        </tr>
+      </thead>
+
+      <tbody class="govuk-table__body">
+        {% for case in cases %}
+          <tr class="govuk-table__row">
+            <td class="govuk-table__cell">{{ case.id }}</td>
+            <td class="govuk-table__cell">
+              <a
+                class="govuk-link"
+                href="/cases/{{ case.id }}?caseworkerId={{ caseworker.id }}"
+              >
+                {{ case.title }}
+              </a>
+            </td>
+            <td class="govuk-table__cell">{{ case.ownerName }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="govuk-body">No cases found.</p>
+  {% endif %}
+{% endblock %}

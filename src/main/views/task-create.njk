@@ -1,0 +1,200 @@
+
+{% extends "template.njk" %}
+
+{% block pageTitle %}
+  {% if errors and errors.length %}Error: {% endif %}Create a task - HMCTS
+{% endblock %}
+
+{% block content %}
+  <a
+    href="/cases/{{ caseItem.id }}?caseworkerId={{ caseworker.id }}"
+    class="govuk-back-link"
+  >
+    Back to case
+  </a>
+
+  <span class="govuk-caption-l">{{ caseItem.title }}</span>
+  <h1 class="govuk-heading-l">Create a task</h1>
+
+  <p class="govuk-body">
+    Creating as: <strong>{{ caseworker.name }}</strong>
+  </p>
+
+  {% if errors and errors.length %}
+    <div class="govuk-error-summary" role="alert" tabindex="-1">
+      <h2 class="govuk-error-summary__title">
+        There is a problem
+      </h2>
+      <div class="govuk-error-summary__body">
+        <ul class="govuk-list govuk-error-summary__list">
+          {% for error in errors %}
+            <li>
+              <a href="#{{ error.field }}">{{ error.message }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  {% endif %}
+
+  {% set titleError = null %}
+  {% set dateError = null %}
+  {% set timeError = null %}
+
+  {% for error in errors %}
+    {% if error.field == 'title' %}
+      {% set titleError = error.message %}
+    {% elif error.field == 'due-date' %}
+      {% set dateError = error.message %}
+    {% elif error.field == 'due-time' %}
+      {% set timeError = error.message %}
+    {% endif %}
+  {% endfor %}
+
+  <form
+    method="post"
+    action="/cases/{{ caseItem.id }}/tasks?caseworkerId={{ caseworker.id }}"
+    novalidate
+  >
+    <div class="govuk-form-group {% if titleError %}govuk-form-group--error{% endif %}">
+      <label class="govuk-label" for="title">
+        Task title
+      </label>
+
+      {% if titleError %}
+        <p id="title-error" class="govuk-error-message">
+          <span class="govuk-visually-hidden">Error:</span>
+          {{ titleError }}
+        </p>
+      {% endif %}
+
+      <input
+        class="govuk-input {% if titleError %}govuk-input--error{% endif %}"
+        id="title"
+        name="title"
+        type="text"
+        value="{{ form.title or '' }}"
+        {% if titleError %}aria-describedby="title-error" aria-invalid="true"{% endif %}
+      >
+    </div>
+
+    <div class="govuk-form-group">
+      <label class="govuk-label" for="description">
+        Description (optional)
+      </label>
+      <textarea
+        class="govuk-textarea"
+        id="description"
+        name="description"
+        rows="5"
+      >{{ form.description or '' }}</textarea>
+    </div>
+
+    <div class="govuk-form-group {% if dateError %}govuk-form-group--error{% endif %}">
+      <fieldset
+        class="govuk-fieldset"
+        role="group"
+        {% if dateError %}aria-describedby="due-date-hint due-date-error"{% else %}aria-describedby="due-date-hint"{% endif %}
+      >
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+          Due date
+        </legend>
+
+        <div id="due-date-hint" class="govuk-hint">
+          For example, 5 11 2026
+        </div>
+
+        {% if dateError %}
+          <p id="due-date-error" class="govuk-error-message">
+            <span class="govuk-visually-hidden">Error:</span>
+            {{ dateError }}
+          </p>
+        {% endif %}
+
+        <div class="govuk-date-input" id="due-date">
+          <div class="govuk-date-input__item">
+            <div class="govuk-form-group">
+              <label class="govuk-label govuk-date-input__label" for="due-day">
+                Day
+              </label>
+              <input
+                class="govuk-input govuk-date-input__input govuk-input--width-2 {% if dateError %}govuk-input--error{% endif %}"
+                id="due-day"
+                name="dueDay"
+                type="text"
+                inputmode="numeric"
+                value="{{ form.dueDay or '' }}"
+                {% if dateError %}aria-invalid="true"{% endif %}
+              >
+            </div>
+          </div>
+
+          <div class="govuk-date-input__item">
+            <div class="govuk-form-group">
+              <label class="govuk-label govuk-date-input__label" for="due-month">
+                Month
+              </label>
+              <input
+                class="govuk-input govuk-date-input__input govuk-input--width-2 {% if dateError %}govuk-input--error{% endif %}"
+                id="due-month"
+                name="dueMonth"
+                type="text"
+                inputmode="numeric"
+                value="{{ form.dueMonth or '' }}"
+                {% if dateError %}aria-invalid="true"{% endif %}
+              >
+            </div>
+          </div>
+
+          <div class="govuk-date-input__item">
+            <div class="govuk-form-group">
+              <label class="govuk-label govuk-date-input__label" for="due-year">
+                Year
+              </label>
+              <input
+                class="govuk-input govuk-date-input__input govuk-input--width-4 {% if dateError %}govuk-input--error{% endif %}"
+                id="due-year"
+                name="dueYear"
+                type="text"
+                inputmode="numeric"
+                value="{{ form.dueYear or '' }}"
+                {% if dateError %}aria-invalid="true"{% endif %}
+              >
+            </div>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+
+    <div class="govuk-form-group govuk-!-margin-top-6 {% if timeError %}govuk-form-group--error{% endif %}">
+      <label class="govuk-label" for="due-time">
+        Due time
+      </label>
+
+      <div class="govuk-hint" id="due-time-hint">
+        Use 24-hour time, for example 14:30
+      </div>
+
+      {% if timeError %}
+        <p id="due-time-error" class="govuk-error-message">
+          <span class="govuk-visually-hidden">Error:</span>
+          {{ timeError }}
+        </p>
+      {% endif %}
+
+      <input
+        class="govuk-input govuk-input--width-5 {% if timeError %}govuk-input--error{% endif %}"
+        id="due-time"
+        name="dueTime"
+        type="text"
+        value="{{ form.dueTime or '' }}"
+        aria-describedby="due-time-hint{% if timeError %} due-time-error{% endif %}"
+        {% if timeError %}aria-invalid="true"{% endif %}
+      >
+    </div>
+
+    <button class="govuk-button" type="submit">
+      Create task
+    </button>
+  </form>
+{% endblock %}

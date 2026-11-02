@@ -1,0 +1,117 @@
+{% extends "template.njk" %}
+
+{% block pageTitle %}
+  {{ task.title }} - HMCTS
+{% endblock %}
+
+{% block content %}
+  <a
+    href="/cases/{{ task.caseId }}?caseworkerId={{ caseworker.id }}"
+    class="govuk-back-link"
+  >
+    Back to case
+  </a>
+
+  <h1 class="govuk-heading-l">{{ task.title }}</h1>
+
+  <p class="govuk-body">
+    Viewing as: <strong>{{ caseworker.name }}</strong>
+  </p>
+
+  <h2 class="govuk-heading-m">Task details</h2>
+
+  <dl class="govuk-summary-list">
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Task reference</dt>
+      <dd class="govuk-summary-list__value">{{ task.id }}</dd>
+    </div>
+
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Description</dt>
+      <dd class="govuk-summary-list__value">
+        {{ task.description or "No description provided" }}
+      </dd>
+    </div>
+
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Due date</dt>
+      <dd class="govuk-summary-list__value">
+        {{ task.formattedDueAt }}
+      </dd>
+    </div>
+
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">Created by</dt>
+      <dd class="govuk-summary-list__value">
+        {{ creatorName }}
+      </dd>
+    </div>
+
+    <div class="govuk-summary-list__row">
+        <dt class="govuk-summary-list__key">Status</dt>
+
+        <dd class="govuk-summary-list__value">
+            <span id="current-task-status">
+              {% set currentStatus = taskStatuses | selectattr("code", "equalto", task.status) | first %}
+              {{ currentStatus.label if currentStatus else task.status }}
+            </span>
+
+            <form
+                id="task-status-form"
+                method="post"
+                action="/tasks/{{ task.id }}/status?caseworkerId={{ caseworker.id }}"
+            >
+                <div class="govuk-form-group govuk-!-margin-bottom-0">
+                <label class="govuk-visually-hidden" for="status">
+                    Task status
+                </label>
+
+                <div class="task-status-controls">
+                    <select class="govuk-select" id="status" name="status">
+                    {% for status in taskStatuses %}
+                      <option value="{{ status.code }}" {% if task.status == status.code %}selected{% endif %}>
+                        {{ status.label }}
+                      </option>
+                    {% endfor %}
+                    </select>
+
+                    <button
+                    type="submit"
+                    class="govuk-button govuk-!-margin-bottom-0"
+                    data-module="govuk-button"
+                    >
+                    Apply
+                    </button>
+
+                    <button
+                    type="button"
+                    id="cancel-status-change"
+                    class="govuk-link task-status-cancel"
+                    >
+                    Cancel
+                    </button>
+                </div>
+                </div>
+            </form>
+        </dd>
+
+        <dd class="govuk-summary-list__actions">
+            <button
+            type="button"
+            id="change-task-status"
+            class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0"
+            aria-controls="task-status-form"
+            aria-expanded="false"
+            >
+            Change
+            </button>
+        </dd>
+    </div>
+  </dl>
+  <a
+    href="/tasks/{{ task.id }}/delete?caseworkerId={{ caseworker.id }}&returnTo=task"
+    class="govuk-link"
+  >
+    Delete task
+  </a>
+{% endblock %}
