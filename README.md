@@ -164,12 +164,11 @@ These principles aim to keep the application understandable, maintainable and us
 
 ## Testing and Quality Checks
 
-Frontend route tests use Jest and Supertest to verify application behaviour.
-
-Axios requests are mocked so the frontend routes can be tested independently of the running backend and database.
+Frontend route tests use Jest and Supertest to verify application behaviour. Axios requests are mocked so the frontend routes can be tested independently of the running backend and database.
 
 The tests cover:
 
+- Caseworker selection and navigation.
 - Displaying cases and their owners.
 - Filtering cases by the selected caseworker.
 - Displaying case details and associated tasks.
@@ -177,9 +176,11 @@ The tests cover:
 - Sorting tasks by due date in ascending and descending order.
 - Combining status filtering and due-date sorting.
 - Task creation and input validation.
-- Displaying task details.
+- Date and time validation, including past dates and UK daylight-saving transitions.
+- Displaying task details and creator information.
 - Updating task statuses and rejecting invalid values.
 - Task deletion and confirmation-page navigation.
+- Handling backend API failures during task creation.
 
 The mocked API responses include task status reference data, allowing tests to verify how the frontend handles statuses supplied by the backend.
 
@@ -209,16 +210,14 @@ The project uses ESLint and Prettier to maintain consistent code quality and for
 - The selected caseworker is passed between pages using URL query parameters.
 - Caseworkers can currently view cases and tasks, create and delete tasks, and update task statuses regardless of case ownership. These actions are not restricted by authentication or authorisation.
 - Task filtering and sorting are performed in memory by the frontend after retrieving the case's tasks. This is suitable for the current challenge scope, but larger datasets may benefit from backend filtering, sorting and pagination.
-- Future due-date validation is currently enforced by the frontend only. The backend should also enforce this rule to ensure consistency across API clients.
+- The frontend requires future due dates when creating tasks. The backend permits past due dates to support potential retrospective registration of completed tasks. This distinction is intentional and reflects different validation requirements for the caseworker interface and the underlying API.
 - The application uses the `Europe/London` timezone for task due dates.
 - Task status options are retrieved from the backend, which is the source of truth for available statuses.
 
 ## Further Development
 
-- Backend enforcement of future due-date restrictions.
 - Additional task management business rules, including status transition restrictions.
-- Improved error handling for backend API failures.
-- Expanded automated frontend tests, including additional validation, date-handling and error scenarios.
+- Improved frontend handling of backend API failures.
 - Backend filtering, sorting and pagination for larger task collections.
 - Authentication and authorisation to replace the simulated caseworker selection.
 - Potential task proposal and approval workflow, allowing case owners to accept or reject tasks proposed by colleagues.
