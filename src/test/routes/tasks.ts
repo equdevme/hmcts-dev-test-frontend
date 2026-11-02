@@ -308,7 +308,11 @@ describe('Task routes', () => {
 
     const response = await request(app).get('/tasks/9?caseworkerId=1').expect(200);
 
-    expect(response.text).toContain('On hold');
+    // The displayed current status must match the task's actual status,
+    // not merely appear somewhere in the dropdown.
+    expect(response.text).toMatch(/<span id="current-task-status">\s*On hold\s*<\/span>/);
+
+    // The backend-defined status must also be available and selected.
     expect(response.text).toContain('value="ON_HOLD"');
     expect(response.text).toMatch(/value="ON_HOLD"\s+selected/);
 
