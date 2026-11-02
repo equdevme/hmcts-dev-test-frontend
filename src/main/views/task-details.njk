@@ -52,15 +52,8 @@
 
         <dd class="govuk-summary-list__value">
             <span id="current-task-status">
-            {% if task.status == "TODO" %}
-                To do
-            {% elif task.status == "IN_PROGRESS" %}
-                In progress
-            {% elif task.status == "DONE" %}
-                Done
-            {% else %}
-                {{ task.status }}
-            {% endif %}
+              {% set currentStatus = taskStatuses | selectattr("code", "equalto", task.status) | first %}
+              {{ currentStatus.label if currentStatus else task.status }}
             </span>
 
             <form
@@ -75,15 +68,11 @@
 
                 <div class="task-status-controls">
                     <select class="govuk-select" id="status" name="status">
-                    <option value="TODO" {% if task.status == "TODO" %}selected{% endif %}>
-                        To do
-                    </option>
-                    <option value="IN_PROGRESS" {% if task.status == "IN_PROGRESS" %}selected{% endif %}>
-                        In progress
-                    </option>
-                    <option value="DONE" {% if task.status == "DONE" %}selected{% endif %}>
-                        Done
-                    </option>
+                    {% for status in taskStatuses %}
+                      <option value="{{ status.code }}" {% if task.status == status.code %}selected{% endif %}>
+                        {{ status.label }}
+                      </option>
+                    {% endfor %}
                     </select>
 
                     <button

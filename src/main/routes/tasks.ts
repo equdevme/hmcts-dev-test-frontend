@@ -168,9 +168,10 @@ export default function (app: Application): void {
         return res.redirect('/');
       }
 
-      const [taskResponse, caseworkersResponse] = await Promise.all([
+      const [taskResponse, caseworkersResponse, statusesResponse] = await Promise.all([
         axios.get(`http://localhost:4000/tasks/${taskId}`),
         axios.get('http://localhost:4000/caseworkers'),
+        axios.get('http://localhost:4000/task-statuses'),
       ]);
 
       const caseworker = caseworkersResponse.data.find((cw: { id: number; name: string }) => cw.id === caseworkerId);
@@ -194,6 +195,7 @@ export default function (app: Application): void {
         task,
         caseworker,
         creatorName: creator?.name ?? 'Unknown',
+        taskStatuses: statusesResponse.data,
       });
     } catch (error) {
       next(error);

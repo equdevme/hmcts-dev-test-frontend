@@ -198,6 +198,16 @@ describe('Task routes', () => {
         };
       }
 
+      if (url === 'http://localhost:4000/task-statuses') {
+        return {
+          data: [
+            { code: 'TODO', label: 'To do' },
+            { code: 'IN_PROGRESS', label: 'In progress' },
+            { code: 'DONE', label: 'Done' },
+          ],
+        };
+      }
+
       throw new Error(`Unexpected API request: ${url}`);
     });
 
@@ -205,13 +215,62 @@ describe('Task routes', () => {
 
     expect(response.text).toContain('Review Supporting Evidence');
     expect(response.text).toContain('Check the submitted documents');
-    expect(response.text).toContain('TODO');
+    expect(response.text).toContain('To do');
     expect(response.text).toContain('5 November 2026, 14:30');
     expect(response.text).toContain('Count Duckula');
 
     expect(response.text).toContain('/cases/10?caseworkerId=1');
 
     expect(mockedAxios.get).toHaveBeenCalledWith('http://localhost:4000/tasks/9');
+    expect(mockedAxios.get).toHaveBeenCalledWith('http://localhost:4000/task-statuses');
+  });
+
+  test('should display and allow selection of a backend-defined task status', async () => {
+    mockedAxios.get.mockImplementation(async url => {
+      if (url === 'http://localhost:4000/tasks/9') {
+        return {
+          data: {
+            id: 9,
+            caseId: 10,
+            createdBy: 2,
+            title: 'Review Supporting Evidence',
+            description: 'Check the submitted documents',
+            status: 'ON_HOLD',
+            dueAt: '2026-11-05T14:30:00Z',
+          },
+        };
+      }
+
+      if (url === 'http://localhost:4000/caseworkers') {
+        return {
+          data: [
+            { id: 1, name: 'Danger Mouse' },
+            { id: 2, name: 'Count Duckula' },
+          ],
+        };
+      }
+
+      if (url === 'http://localhost:4000/task-statuses') {
+        return {
+          data: [
+            { code: 'TODO', label: 'To do' },
+            { code: 'IN_PROGRESS', label: 'In progress' },
+            { code: 'DONE', label: 'Done' },
+            { code: 'ON_HOLD', label: 'On hold' },
+          ],
+        };
+      }
+
+      throw new Error(`Unexpected API request: ${url}`);
+    });
+
+    const response = await request(app).get('/tasks/9?caseworkerId=1').expect(200);
+
+    expect(response.text).toContain('On hold');
+    expect(response.text).toContain('value="ON_HOLD"');
+    expect(response.text).toMatch(/value="ON_HOLD"\s+selected/);
+
+    expect(mockedAxios.get).toHaveBeenCalledWith('http://localhost:4000/task-statuses');
   });
 
   test('should update a task status and redirect to task details', async () => {
