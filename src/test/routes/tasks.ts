@@ -134,6 +134,48 @@ describe('Task routes', () => {
     expect(mockedAxios.post).not.toHaveBeenCalled();
   });
 
+  test('should reject task creation when the title exceeds 255 characters', async () => {
+    mockedAxios.get.mockImplementation(async url => {
+      if (url === 'http://localhost:4000/cases/10') {
+        return {
+          data: {
+            id: 10,
+            ownerId: 1,
+            title: 'Test case',
+            description: 'A case for testing',
+          },
+        };
+      }
+
+      if (url === 'http://localhost:4000/caseworkers') {
+        return {
+          data: [{ id: 1, name: 'Danger Mouse' }],
+        };
+      }
+
+      throw new Error(`Unexpected API request: ${url}`);
+    });
+
+    const longTitle = 'A'.repeat(256);
+
+    const response = await request(app)
+      .post('/cases/10/tasks?caseworkerId=1')
+      .type('form')
+      .send({
+        title: longTitle,
+        description: 'Check submitted evidence',
+        dueDay: '15',
+        dueMonth: '12',
+        dueYear: '2026',
+        dueTime: '14:30',
+      })
+      .expect(400);
+
+    expect(response.text).toContain('Task title must be 255 characters or fewer');
+    expect(response.text).toContain(longTitle);
+    expect(mockedAxios.post).not.toHaveBeenCalled();
+  });
+
   test('should reject an invalid due date', async () => {
     mockedAxios.get.mockImplementation(async url => {
       if (url === 'http://localhost:4000/cases/10') {

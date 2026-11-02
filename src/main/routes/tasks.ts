@@ -62,6 +62,11 @@ export default function (app: Application): void {
 
       if (typeof title !== 'string' || !title.trim()) {
         errors.push({ field: 'title', message: 'Enter a task title' });
+      } else if (title.trim().length > 255) {
+        errors.push({
+          field: 'title',
+          message: 'Task title must be 255 characters or fewer',
+        });
       }
 
       const day = Number(dueDay);
