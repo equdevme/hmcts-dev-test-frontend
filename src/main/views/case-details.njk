@@ -42,13 +42,27 @@
 
   <h2 class="govuk-heading-m">Tasks</h2>
 
-  {# Task controls: filtering, sorting and creation #}
+  {# Task controls: creation, filtering and sorting #}
   <div
     class="govuk-!-margin-bottom-5"
     style="display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; flex-wrap: wrap;"
   >
+    {# Create task button — left aligned #}
+    <a
+      href="/cases/{{ caseItem.id }}/tasks/new?caseworkerId={{ caseworker.id }}"
+      class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0"
+      data-module="govuk-button"
+    >
+      Create a task
+    </a>
+
+    {# Filtering and sorting — right aligned #}
     {% if hasTasks %}
-      <form method="get" action="/cases/{{ caseItem.id }}">
+      <form
+        method="get"
+        action="/cases/{{ caseItem.id }}"
+        style="margin-left: auto;"
+      >
         <input
           type="hidden"
           name="caseworkerId"
@@ -116,15 +130,6 @@
         </div>
       </form>
     {% endif %}
-
-    <a
-      href="/cases/{{ caseItem.id }}/tasks/new?caseworkerId={{ caseworker.id }}"
-      class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0"
-      data-module="govuk-button"
-      style="margin-left: auto;"
-    >
-      Create a task
-    </a>
   </div>
 
   {# Task table #}
